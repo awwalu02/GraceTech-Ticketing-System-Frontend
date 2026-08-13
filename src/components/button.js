@@ -6,6 +6,7 @@ class Button extends HTMLElement {
     connectedCallback() {
         const variant = this.getAttribute('variant');
         const extraClasses = this.getAttribute('class') || '';
+        const customLabel = this.getAttribute('label');
 
         const labels = {
             ticket: 'Create Ticket',
@@ -13,7 +14,7 @@ class Button extends HTMLElement {
             signup: 'Signup'
         };
 
-        const label = labels[variant] || 'Button';
+        const label = customLabel || labels[variant] || 'Button';
 
         const icon = variant === 'ticket'
             ? `<i data-lucide="plus" class="w-4 h-4"></i>`
