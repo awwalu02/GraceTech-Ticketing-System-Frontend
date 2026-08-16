@@ -13,9 +13,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Production build outputs
+# Next.js build output — this is Next's equivalent of dist/build,
+# do NOT skip this one or you'll commit the entire build/Turbopack cache
+.next/
+
+# Production build outputs (other tooling / static export)
 dist/
 build/
+out/
 
 # IDE / System files
 .DS_Store
