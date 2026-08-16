@@ -24,7 +24,10 @@ export default function LoginPage() {
       const user = await login(email, password);
       router.push(user.role === "admin" ? "/" : "/portal");
     } catch (err) {
-      setError(err.message);
+      // Login failures are almost always bad credentials — show a clear,
+      // consistent message rather than whatever raw text the backend sent
+      // (which can vary, or fall back to a generic "Request failed (401)").
+      setError("Incorrect login credentials");
       setSubmitting(false);
     }
   }
@@ -91,17 +94,6 @@ export default function LoginPage() {
           Sign up
         </Link>
       </p>
-
-      <div className="mt-6 pt-5 border-t border-gray-100">
-        <p className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase mb-2">
-          Demo accounts
-        </p>
-        <p className="text-xs text-gray-500 leading-relaxed">
-          Admin — admin@demo.com / admin123
-          <br />
-          User — user@demo.com / user123
-        </p>
-      </div>
     </AuthShell>
   );
 }
