@@ -6,6 +6,7 @@ import { STATUS_STYLES } from "@/data/tickets";
 import { getCategory } from "@/data/categories";
 import { formatDateTime } from "@/lib/formatDate";
 import { useComments } from "@/lib/useComments";
+import { useAuth } from "@/lib/auth-context";
 import Spinner from "@/components/Spinner";
 
 // isAdmin controls whether Claim/Resolve/Close actions render at all.
@@ -25,6 +26,7 @@ export default function TicketDetailModal({
   const [postingComment, setPostingComment] = useState(false);
 
   const { comments, loading: commentsLoading, addComment } = useComments(ticket?.id);
+  const { user } = useAuth();
 
   if (!ticket) return null;
 
@@ -164,22 +166,28 @@ export default function TicketDetailModal({
                   Loading comments…
                 </div>
               ) : comments.length > 0 ? (
-                comments.map((c) => (
-                  <div
-                    key={c.id}
-                    className="bg-gray-50 rounded-xl px-3.5 py-2.5"
-                  >
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-xs font-semibold text-gray-900">
-                        {c.author || c.userName || c.createdBy || "Someone"}
-                      </span>
-                      <span className="text-[11px] text-gray-400">
-                        {formatDateTime(c.time || c.createdAt)}
-                      </span>
+                comments.map((c) => {
+                  const authorName =
+                    c.author || c.userName || c.createdBy || "Someone";
+                  const isMine = user?.name && authorName === user.name;
+
+                  return (
+                    <div
+                      key={c.id}
+                      className="bg-gray-50 rounded-xl px-3.5 py-2.5"
+                    >
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs font-semibold text-gray-900">
+                          {isMine ? "You" : authorName}
+                        </span>
+                        <span className="text-[11px] text-gray-400">
+                          {formatDateTime(c.time || c.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700">{c.body}</p>
                     </div>
-                    <p className="text-sm text-gray-700">{c.body}</p>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-xs text-gray-400">No comments yet.</p>
               )}

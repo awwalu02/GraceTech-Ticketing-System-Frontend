@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AuthShell from "@/components/AuthShell";
 import Spinner from "@/components/Spinner";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, consumeSessionExpiredFlag } from "@/lib/auth-context";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -15,11 +15,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
+
+  // Landing here because a live session expired (not just visiting to log
+  // in fresh) — show a clear reason instead of a silent, unexplained redirect.
+  useEffect(() => {
+    setSessionExpired(consumeSessionExpiredFlag());
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setSessionExpired(false);
     try {
       const user = await login(email, password);
       router.push(user.role === "admin" ? "/" : "/portal");
@@ -38,6 +46,12 @@ export default function LoginPage() {
       <p className="text-sm text-gray-400 mb-6">
         Log in to your IT Support account
       </p>
+
+      {sessionExpired && (
+        <div className="mb-5 px-3.5 py-2.5 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-700">
+          Your session expired — please log in again.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
