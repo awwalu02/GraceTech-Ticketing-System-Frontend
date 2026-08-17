@@ -33,13 +33,20 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Checks a few common field names for the auth token — the documented
+  // shape uses "token", but FastAPI/OAuth2 backends very commonly return
+  // "access_token" instead. Trying both makes this resilient regardless of
+  // which convention the real backend actually uses.
+  const extractToken = (data) => data.token || data.access_token || data.accessToken;
+
   const login = useCallback(
     async (email, password) => {
       const data = await apiFetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      if (data.token) setToken(data.token);
+      const token = extractToken(data);
+      if (token) setToken(token);
       persist(data.user);
       return data.user;
     },
@@ -54,7 +61,8 @@ export function AuthProvider({ children }) {
         method: "POST",
         body: JSON.stringify({ name, email, password }),
       });
-      if (data.token) setToken(data.token);
+      const token = extractToken(data);
+      if (token) setToken(token);
       persist(data.user);
       return data.user;
     },
