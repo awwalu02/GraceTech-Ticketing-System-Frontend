@@ -4,6 +4,9 @@ import { AuthProvider } from "@/lib/auth-context";
 export const metadata = {
   title: "IT Support Dashboard",
   description: "Ticket management dashboard for IT Support",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {

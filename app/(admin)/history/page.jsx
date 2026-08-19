@@ -19,9 +19,9 @@ export default function HistoryPage() {
   const selectedTicket = tickets.find((t) => t.id === selectedTicketId) ?? null;
 
   return (
-    <div className="flex bg-[#F6F7F9] min-h-screen font-sans">
+    <div className="flex flex-col md:flex-row bg-[#F6F7F9] min-h-screen font-sans">
       <Sidebar />
-      <main className="flex-1 px-10 py-8">
+      <main className="flex-1 px-4 py-5 md:px-10 md:py-8">
         {/* No primary action here — History is a read-only log */}
         <TopBar title="History" notificationCount={notifications.length} />
 
