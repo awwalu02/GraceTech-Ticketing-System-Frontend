@@ -17,15 +17,15 @@ export default function TopBar({
   notificationsHref = "/notifications",
 }) {
   return (
-    <div className="flex items-center justify-between mb-8">
-      <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+    <div className="flex items-center justify-between mb-5 md:mb-8">
+      <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
         {title}
       </h1>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 md:gap-4">
         {showBell && (
           <Link
             href={notificationsHref}
-            className="relative text-gray-400 hover:text-gray-700 transition-colors"
+            className="relative text-gray-400 hover:text-gray-700 transition-colors shrink-0"
             aria-label="Notifications"
           >
             <Bell size={20} strokeWidth={2} />
@@ -39,10 +39,11 @@ export default function TopBar({
         {actionLabel && (
           <button
             onClick={onAction}
-            className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2.5 rounded-full transition-colors"
+            aria-label={actionLabel}
+            className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3.5 sm:px-4 py-2.5 rounded-full transition-colors shrink-0"
           >
             <Plus size={16} strokeWidth={2.5} />
-            {actionLabel}
+            <span className="hidden sm:inline">{actionLabel}</span>
           </button>
         )}
       </div>

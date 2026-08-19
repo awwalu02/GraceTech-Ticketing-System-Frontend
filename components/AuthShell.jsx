@@ -1,15 +1,13 @@
 "use client";
 
-import { Headphones } from "lucide-react";
+import Image from "next/image";
 
 export default function AuthShell({ children }) {
   return (
     <div className="min-h-screen bg-[#F6F7F9] flex items-center justify-center px-4 font-sans">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
-            <Headphones size={17} className="text-white" strokeWidth={2} />
-          </div>
+        <div className="flex flex-col items-center justify-center gap-2 mb-8">
+          <Image src="/logo.png" alt="Logo" width={48} height={48} className="object-contain" />
           <span className="text-[15px] font-bold text-gray-900 tracking-tight">
             IT Support
           </span>
