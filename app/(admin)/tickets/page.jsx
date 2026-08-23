@@ -21,12 +21,12 @@ const TABS = [
 
 function StatusTabs({ active, onChange }) {
   return (
-    <div className="inline-flex items-center gap-1 bg-gray-100 rounded-full p-1 mb-6 flex-wrap">
+    <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1 mb-6 overflow-x-auto">
       {TABS.map((tab) => (
         <button
           key={tab.label}
           onClick={() => onChange(tab.value)}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors
+          className={`shrink-0 whitespace-nowrap px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full font-medium transition-colors
             ${
               active === tab.value
                 ? "bg-white text-gray-900 shadow-sm"
@@ -42,7 +42,7 @@ function StatusTabs({ active, onChange }) {
 
 export default function TicketsPage() {
   const { user } = useAuth();
-  const { tickets, loading, createTicket, claimTicket, updateTicketStatus } =
+  const { tickets, loading, createTicket, claimTicket, updateTicketStatus, deleteTicket } =
     useTickets();
   const { notifications } = useNotifications(user?.name);
   const [activeStatus, setActiveStatus] = useState(null);
@@ -62,7 +62,7 @@ export default function TicketsPage() {
   return (
     <div className="flex flex-col md:flex-row bg-[#F6F7F9] min-h-screen font-sans">
       <Sidebar />
-      <main className="flex-1 px-4 py-5 md:px-10 md:py-8">
+      <main className="flex-1 px-4 py-5 md:px-10 md:py-8 max-w-5xl mx-auto w-full">
         <TopBar
           title="Tickets"
           actionLabel="Create Ticket"
@@ -103,6 +103,7 @@ export default function TicketsPage() {
         isAdmin
         onClaim={claimTicket}
         onUpdateStatus={updateTicketStatus}
+        onDelete={deleteTicket}
       />
     </div>
   );

@@ -41,7 +41,7 @@ function TicketsCard({ tickets, loading, onOpen }) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { tickets, loading, createTicket, claimTicket, updateTicketStatus } =
+  const { tickets, loading, createTicket, claimTicket, updateTicketStatus, deleteTicket } =
     useTickets();
   const { notifications } = useNotifications(user?.name);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,7 +57,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col md:flex-row bg-[#F6F7F9] min-h-screen font-sans">
       <Sidebar />
-      <main className="flex-1 px-4 py-5 md:px-10 md:py-8">
+      <main className="flex-1 px-4 py-5 md:px-10 md:py-8 max-w-5xl mx-auto w-full">
         <TopBar
           title="Dashboard"
           actionLabel="Create Ticket"
@@ -82,6 +82,7 @@ export default function DashboardPage() {
         isAdmin
         onClaim={claimTicket}
         onUpdateStatus={updateTicketStatus}
+        onDelete={deleteTicket}
       />
     </div>
   );
