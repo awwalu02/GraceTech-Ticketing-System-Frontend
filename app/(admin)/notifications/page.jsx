@@ -14,7 +14,7 @@ export default function NotificationsPage() {
   return (
     <div className="flex flex-col md:flex-row bg-[#F6F7F9] min-h-screen font-sans">
       <Sidebar />
-      <main className="flex-1 px-4 py-5 md:px-10 md:py-8">
+      <main className="flex-1 px-4 py-5 md:px-10 md:py-8 max-w-5xl mx-auto w-full">
         <TopBar title="Notifications" notificationCount={notifications.length} />
 
         <div className="bg-white rounded-2xl border border-gray-100 p-5">

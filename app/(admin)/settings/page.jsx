@@ -41,7 +41,7 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col md:flex-row bg-[#F6F7F9] min-h-screen font-sans">
       <Sidebar />
-      <main className="flex-1 px-4 py-5 md:px-10 md:py-8">
+      <main className="flex-1 px-4 py-5 md:px-10 md:py-8 max-w-5xl mx-auto w-full">
         <TopBar title="Settings" notificationCount={notifications.length} />
 
         <div className="grid gap-6 lg:grid-cols-2">

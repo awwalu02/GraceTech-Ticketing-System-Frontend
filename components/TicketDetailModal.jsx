@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Check, CircleCheck, CircleX, Send } from "lucide-react";
+import { X, Check, CircleCheck, CircleX, Send, Trash2 } from "lucide-react";
 import { STATUS_STYLES } from "@/data/tickets";
 import { getCategory } from "@/data/categories";
 import { formatDateTime } from "@/lib/formatDate";
@@ -10,21 +10,26 @@ import { useAdmins } from "@/lib/useAdmins";
 import { useAuth } from "@/lib/auth-context";
 import Spinner from "@/components/Spinner";
 
-// isAdmin controls whether Claim/Resolve/Close actions render at all.
-// onClaim(ticketId) and onUpdateStatus(ticketId, "resolved" | "closed") are
-// async — errors (e.g. 409 already claimed) are caught and shown inline.
+// isAdmin controls whether Claim/Resolve/Close/Delete actions render at
+// all. onClaim(ticketId) and onUpdateStatus(ticketId, "resolved" | "closed")
+// are async — errors (e.g. 409 already claimed) are caught and shown inline.
+// onDelete(ticketId) is also async — the row/modal closes automatically
+// once it resolves (see handleDelete below).
 export default function TicketDetailModal({
   ticket,
   onClose,
   isAdmin = false,
   onClaim,
   onUpdateStatus,
+  onDelete,
 }) {
   const [actionError, setActionError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [commentError, setCommentError] = useState(null);
   const [postingComment, setPostingComment] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const { comments, loading: commentsLoading, addComment } = useComments(ticket?.id);
   const { user } = useAuth();
@@ -48,6 +53,24 @@ export default function TicketDetailModal({
     if (admin) return admin.name;
     if (ticket.createdBy) return ticket.createdBy;
     return "Someone";
+  }
+
+  async function handleDelete() {
+    if (!onDelete || deleting) return;
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      return;
+    }
+    setDeleting(true);
+    setActionError(null);
+    try {
+      await onDelete(ticket.id);
+      onClose();
+    } catch (err) {
+      setActionError(err.message);
+      setDeleting(false);
+      setConfirmingDelete(false);
+    }
   }
 
   async function handleClaim() {
@@ -113,14 +136,45 @@ export default function TicketDetailModal({
               </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 transition-colors"
-            aria-label="Close"
-          >
-            <X size={20} strokeWidth={2} />
-          </button>
+          <div className="flex items-center gap-3 shrink-0">
+            {isAdmin && onDelete && (
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className={`transition-colors ${
+                  confirmingDelete
+                    ? "text-red-600 hover:text-red-700"
+                    : "text-gray-400 hover:text-red-600"
+                }`}
+                aria-label={confirmingDelete ? "Confirm delete" : "Delete ticket"}
+                title={confirmingDelete ? "Click again to confirm" : "Delete ticket"}
+              >
+                {deleting ? <Spinner size={18} /> : <Trash2 size={18} strokeWidth={2} />}
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-700 transition-colors"
+              aria-label="Close"
+            >
+              <X size={20} strokeWidth={2} />
+            </button>
+          </div>
         </div>
+
+        {confirmingDelete && (
+          <div className="mb-4 -mt-2 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-red-50 border border-red-100">
+            <p className="text-xs text-red-700">
+              Delete this ticket permanently? This can't be undone.
+            </p>
+            <button
+              onClick={() => setConfirmingDelete(false)}
+              className="text-xs font-semibold text-gray-500 hover:text-gray-700 shrink-0"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
 
         <div className="space-y-4">
           <div>
