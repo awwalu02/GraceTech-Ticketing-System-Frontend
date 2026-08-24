@@ -21,12 +21,12 @@ const TABS = [
 
 function StatusTabs({ active, onChange }) {
   return (
-    <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-100 rounded-full p-0.5 sm:p-1 mb-6 w-fit max-w-full overflow-x-auto">
+    <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-100 rounded-full p-0.5 sm:p-1 mb-6 w-full">
       {TABS.map((tab) => (
         <button
           key={tab.label}
           onClick={() => onChange(tab.value)}
-          className={`shrink-0 whitespace-nowrap px-2 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-sm rounded-full font-medium transition-colors
+          className={`flex-1 whitespace-nowrap text-center px-2 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-sm rounded-full font-medium transition-colors
             ${active === tab.value
               ? "bg-white text-gray-900 shadow-sm"
               : "text-gray-500 hover:text-gray-700"
