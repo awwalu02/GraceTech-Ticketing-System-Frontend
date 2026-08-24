@@ -14,23 +14,22 @@ import { useAuth } from "@/lib/auth-context";
 const TABS = [
   { label: "All", value: null },
   { label: "Open", value: "open" },
-  { label: "In Progress", value: "in_progress" },
+  { label: "Progress", value: "in_progress" },
   { label: "Resolved", value: "resolved" },
   { label: "Closed", value: "closed" },
 ];
 
 function StatusTabs({ active, onChange }) {
   return (
-    <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1 mb-6 overflow-x-auto">
+    <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-100 rounded-full p-0.5 sm:p-1 mb-6 w-fit max-w-full overflow-x-auto">
       {TABS.map((tab) => (
         <button
           key={tab.label}
           onClick={() => onChange(tab.value)}
-          className={`shrink-0 whitespace-nowrap px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full font-medium transition-colors
-            ${
-              active === tab.value
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+          className={`shrink-0 whitespace-nowrap px-2 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-sm rounded-full font-medium transition-colors
+            ${active === tab.value
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
             }`}
         >
           {tab.label}
@@ -70,7 +69,7 @@ export default function TicketsPage() {
           notificationCount={notifications.length}
         />
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-5">
           <StatusTabs active={activeStatus} onChange={setActiveStatus} />
 
           <div className="space-y-2">
