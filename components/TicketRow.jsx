@@ -30,7 +30,7 @@ export default function TicketRow({
       className={`flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 px-3.5 sm:px-5 py-3 sm:py-4 rounded-2xl bg-red-50/40 hover:bg-red-50/70 transition-colors ${onOpen ? "cursor-pointer" : ""
         }`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 sm:flex-1 sm:min-w-0">
         {/* Category icon */}
         <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
           <CategoryIcon
