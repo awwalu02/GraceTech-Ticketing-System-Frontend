@@ -90,17 +90,17 @@ export default function PortalTicketsPage() {
             )}
           </div>
         </div>
-      </main>
 
-      <CreateTicketModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreate={handleCreate}
-      />
-      <TicketDetailModal
-        ticket={selectedTicket}
-        onClose={() => setSelectedTicketId(null)}
-      />
+
+        <CreateTicketModal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onCreate={handleCreate}
+        />
+        <TicketDetailModal
+          ticket={selectedTicket}
+          onClose={() => setSelectedTicketId(null)}
+        />
     </div>
   );
 }
