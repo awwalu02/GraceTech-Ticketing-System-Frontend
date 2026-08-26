@@ -183,7 +183,7 @@ export default function Sidebar() {
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col justify-between
           transform transition-transform duration-200
-          md:static md:z-auto md:h-screen md:shrink-0 md:translate-x-0
+          md:static md:z-auto md:min-h-screen md:shrink-0 md:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* Close button, mobile only, top-right of the open drawer */}
