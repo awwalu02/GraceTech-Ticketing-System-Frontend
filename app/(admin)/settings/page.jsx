@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import Spinner from "@/components/Spinner";
@@ -10,7 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  const { admins, loading, createAdmin } = useAdmins();
+  const { admins, loading, createAdmin, deleteAdmin } = useAdmins();
   const { notifications } = useNotifications(user?.name);
 
   const [name, setName] = useState("");
@@ -19,6 +20,27 @@ export default function SettingsPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmingId, setConfirmingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+
+  async function handleDelete(admin) {
+    if (confirmingId !== admin.id) {
+      setConfirmingId(admin.id);
+      setDeleteError(null);
+      return;
+    }
+    setDeletingId(admin.id);
+    setDeleteError(null);
+    try {
+      await deleteAdmin(admin.id);
+      setConfirmingId(null);
+    } catch (err) {
+      setDeleteError(err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -140,24 +162,69 @@ export default function SettingsPage() {
                   Loading…
                 </div>
               ) : (
-                admins.map((a) => (
-                  <div
-                    key={a.id}
-                    className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-gray-50"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-xs font-semibold shrink-0">
-                      {a.name.charAt(0).toUpperCase()}
+                admins.map((a) => {
+                  const isSelf = user?.id != null && String(a.id) === String(user.id);
+                  const isConfirming = confirmingId === a.id;
+                  const isDeleting = deletingId === a.id;
+
+                  return (
+                    <div key={a.id}>
+                      <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-gray-50">
+                        <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-xs font-semibold shrink-0">
+                          {a.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {a.name}
+                            {isSelf && (
+                              <span className="text-gray-400 font-normal"> (you)</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {a.email}
+                          </p>
+                        </div>
+                        {!isSelf && (
+                          <button
+                            onClick={() => handleDelete(a)}
+                            disabled={isDeleting}
+                            className={`shrink-0 transition-colors ${
+                              isConfirming
+                                ? "text-red-600 hover:text-red-700"
+                                : "text-gray-300 hover:text-red-600"
+                            }`}
+                            aria-label={
+                              isConfirming ? "Confirm delete" : `Delete ${a.name}`
+                            }
+                            title={isConfirming ? "Click again to confirm" : "Delete admin"}
+                          >
+                            {isDeleting ? (
+                              <Spinner size={16} />
+                            ) : (
+                              <Trash2 size={16} strokeWidth={2} />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                      {isConfirming && (
+                        <div className="mt-1.5 flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-red-50 border border-red-100">
+                          <p className="text-xs text-red-700">
+                            Remove {a.name} as an admin?
+                          </p>
+                          <button
+                            onClick={() => setConfirmingId(null)}
+                            className="text-xs font-semibold text-gray-500 hover:text-gray-700 shrink-0"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {a.name}
-                      </p>
-                      <p className="text-xs text-gray-400 truncate">
-                        {a.email}
-                      </p>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
+              )}
+              {deleteError && (
+                <p className="text-xs text-red-500 pt-1">{deleteError}</p>
               )}
             </div>
           </div>
