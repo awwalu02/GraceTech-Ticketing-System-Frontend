@@ -27,9 +27,10 @@ function StatusTabs({ active, onChange }) {
           key={tab.label}
           onClick={() => onChange(tab.value)}
           className={`flex-1 whitespace-nowrap text-center px-2 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-sm rounded-full font-medium transition-colors
-            ${active === tab.value
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-500 hover:text-gray-700"
+            ${
+              active === tab.value
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
             }`}
         >
           {tab.label}
@@ -61,7 +62,7 @@ export default function PortalTicketsPage() {
   return (
     <div className="flex flex-col md:flex-row bg-[#F6F7F9] min-h-screen font-sans">
       <Sidebar />
-      <main className="flex-1 px-4 py-5 md:px-10 md:py-8 max-w-5xl mx-auto w-full">
+      <main className="flex-1 px-4 py-5 md:px-10 md:py-8">
         <TopBar
           title="Tickets"
           actionLabel="Create Ticket"
