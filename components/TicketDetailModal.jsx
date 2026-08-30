@@ -13,8 +13,8 @@ import Spinner from "@/components/Spinner";
 // isAdmin controls whether Claim/Resolve/Close/Delete actions render at
 // all. onClaim(ticketId) and onUpdateStatus(ticketId, "resolved" | "closed")
 // are async — errors (e.g. 409 already claimed) are caught and shown inline.
-// onDelete(ticketId) is also async — the row/modal closes automatically
-// once it resolves (see handleDelete below).
+// onDelete(ticketId) is also async — the modal closes automatically once
+// it resolves (see handleDelete below).
 export default function TicketDetailModal({
   ticket,
   onClose,
