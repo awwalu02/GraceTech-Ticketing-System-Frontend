@@ -178,12 +178,13 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar itself — static in the desktop flex row (md:relative),
-          a fixed off-canvas drawer on mobile that slides in/out. */}
+      {/* Sidebar itself — sticky in the desktop flex row, staying pinned in
+          the viewport while <main> scrolls past it. A fixed off-canvas
+          drawer on mobile that slides in/out. */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col justify-between
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col justify-between overflow-y-auto
           transform transition-transform duration-200
-          md:static md:z-auto md:min-h-screen md:shrink-0 md:translate-x-0
+          md:sticky md:top-0 md:z-auto md:h-screen md:shrink-0 md:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* Close button, mobile only, top-right of the open drawer */}
