@@ -27,8 +27,9 @@ export default function TicketRow({
   return (
     <div
       onClick={onOpen ? () => onOpen(id) : undefined}
-      className={`flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 px-3.5 sm:px-5 py-3 sm:py-4 rounded-2xl bg-red-50/40 hover:bg-red-50/70 transition-colors ${onOpen ? "cursor-pointer" : ""
-        }`}
+      className={`flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 px-3.5 sm:px-5 py-3 sm:py-4 rounded-2xl bg-red-50/40 hover:bg-red-50/70 transition-colors ${
+        onOpen ? "cursor-pointer" : ""
+      }`}
     >
       <div className="flex items-center gap-3 sm:flex-1 sm:min-w-0">
         {/* Category icon */}

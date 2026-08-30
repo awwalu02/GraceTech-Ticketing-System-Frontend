@@ -6,12 +6,72 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import Spinner from "@/components/Spinner";
 import { useAdmins } from "@/lib/useAdmins";
+import { useUsers } from "@/lib/useUsers";
 import { useNotifications } from "@/lib/useNotifications";
 import { useAuth } from "@/lib/auth-context";
 
+// Shared row used by both the admins list and the users list — avatar,
+// name/email, and a two-step delete confirm (click once to arm it, click
+// again to actually delete).
+function AccountRow({
+  account,
+  isSelf,
+  isConfirming,
+  isDeleting,
+  onDeleteClick,
+  onCancel,
+  deleteLabel,
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-gray-50">
+        <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-xs font-semibold shrink-0">
+          {account.name.charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-gray-900 truncate">
+            {account.name}
+            {isSelf && <span className="text-gray-400 font-normal"> (you)</span>}
+          </p>
+          <p className="text-xs text-gray-400 truncate">{account.email}</p>
+        </div>
+        {!isSelf && (
+          <button
+            onClick={onDeleteClick}
+            disabled={isDeleting}
+            className={`shrink-0 transition-colors ${
+              isConfirming
+                ? "text-red-600 hover:text-red-700"
+                : "text-gray-300 hover:text-red-600"
+            }`}
+            aria-label={isConfirming ? "Confirm delete" : `Delete ${account.name}`}
+            title={isConfirming ? "Click again to confirm" : "Delete"}
+          >
+            {isDeleting ? <Spinner size={16} /> : <Trash2 size={16} strokeWidth={2} />}
+          </button>
+        )}
+      </div>
+      {isConfirming && (
+        <div className="mt-1.5 flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-red-50 border border-red-100">
+          <p className="text-xs text-red-700">
+            Remove {account.name} {deleteLabel}?
+          </p>
+          <button
+            onClick={onCancel}
+            className="text-xs font-semibold text-gray-500 hover:text-gray-700 shrink-0"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const { user } = useAuth();
-  const { admins, loading, createAdmin, deleteAdmin } = useAdmins();
+  const { admins, loading: adminsLoading, createAdmin, deleteAdmin } = useAdmins();
+  const { users, loading: usersLoading, deleteUser } = useUsers();
   const { notifications } = useNotifications(user?.name);
 
   const [name, setName] = useState("");
@@ -20,25 +80,48 @@ export default function SettingsPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [confirmingId, setConfirmingId] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
-  const [deleteError, setDeleteError] = useState(null);
 
-  async function handleDelete(admin) {
-    if (confirmingId !== admin.id) {
-      setConfirmingId(admin.id);
-      setDeleteError(null);
+  const [confirmingAdminId, setConfirmingAdminId] = useState(null);
+  const [deletingAdminId, setDeletingAdminId] = useState(null);
+  const [adminDeleteError, setAdminDeleteError] = useState(null);
+
+  const [confirmingUserId, setConfirmingUserId] = useState(null);
+  const [deletingUserId, setDeletingUserId] = useState(null);
+  const [userDeleteError, setUserDeleteError] = useState(null);
+
+  async function handleDeleteAdmin(admin) {
+    if (confirmingAdminId !== admin.id) {
+      setConfirmingAdminId(admin.id);
+      setAdminDeleteError(null);
       return;
     }
-    setDeletingId(admin.id);
-    setDeleteError(null);
+    setDeletingAdminId(admin.id);
+    setAdminDeleteError(null);
     try {
       await deleteAdmin(admin.id);
-      setConfirmingId(null);
+      setConfirmingAdminId(null);
     } catch (err) {
-      setDeleteError(err.message);
+      setAdminDeleteError(err.message);
     } finally {
-      setDeletingId(null);
+      setDeletingAdminId(null);
+    }
+  }
+
+  async function handleDeleteUser(u) {
+    if (confirmingUserId !== u.id) {
+      setConfirmingUserId(u.id);
+      setUserDeleteError(null);
+      return;
+    }
+    setDeletingUserId(u.id);
+    setUserDeleteError(null);
+    try {
+      await deleteUser(u.id);
+      setConfirmingUserId(null);
+    } catch (err) {
+      setUserDeleteError(err.message);
+    } finally {
+      setDeletingUserId(null);
     }
   }
 
@@ -156,75 +239,66 @@ export default function SettingsPage() {
             </p>
 
             <div className="space-y-2">
-              {loading ? (
+              {adminsLoading ? (
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                   <Spinner size={16} />
                   Loading…
                 </div>
+              ) : admins.length > 0 ? (
+                admins.map((a) => (
+                  <AccountRow
+                    key={a.id}
+                    account={a}
+                    isSelf={user?.id != null && String(a.id) === String(user.id)}
+                    isConfirming={confirmingAdminId === a.id}
+                    isDeleting={deletingAdminId === a.id}
+                    onDeleteClick={() => handleDeleteAdmin(a)}
+                    onCancel={() => setConfirmingAdminId(null)}
+                    deleteLabel="as an admin"
+                  />
+                ))
               ) : (
-                admins.map((a) => {
-                  const isSelf = user?.id != null && String(a.id) === String(user.id);
-                  const isConfirming = confirmingId === a.id;
-                  const isDeleting = deletingId === a.id;
-
-                  return (
-                    <div key={a.id}>
-                      <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-gray-50">
-                        <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-xs font-semibold shrink-0">
-                          {a.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {a.name}
-                            {isSelf && (
-                              <span className="text-gray-400 font-normal"> (you)</span>
-                            )}
-                          </p>
-                          <p className="text-xs text-gray-400 truncate">
-                            {a.email}
-                          </p>
-                        </div>
-                        {!isSelf && (
-                          <button
-                            onClick={() => handleDelete(a)}
-                            disabled={isDeleting}
-                            className={`shrink-0 transition-colors ${
-                              isConfirming
-                                ? "text-red-600 hover:text-red-700"
-                                : "text-gray-300 hover:text-red-600"
-                            }`}
-                            aria-label={
-                              isConfirming ? "Confirm delete" : `Delete ${a.name}`
-                            }
-                            title={isConfirming ? "Click again to confirm" : "Delete admin"}
-                          >
-                            {isDeleting ? (
-                              <Spinner size={16} />
-                            ) : (
-                              <Trash2 size={16} strokeWidth={2} />
-                            )}
-                          </button>
-                        )}
-                      </div>
-                      {isConfirming && (
-                        <div className="mt-1.5 flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-red-50 border border-red-100">
-                          <p className="text-xs text-red-700">
-                            Remove {a.name} as an admin?
-                          </p>
-                          <button
-                            onClick={() => setConfirmingId(null)}
-                            className="text-xs font-semibold text-gray-500 hover:text-gray-700 shrink-0"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
+                <p className="text-sm text-gray-400">No admins found.</p>
               )}
-              {deleteError && (
-                <p className="text-xs text-red-500 pt-1">{deleteError}</p>
+              {adminDeleteError && (
+                <p className="text-xs text-red-500 pt-1">{adminDeleteError}</p>
+              )}
+            </div>
+          </div>
+
+          {/* All users */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 lg:col-span-2">
+            <h2 className="text-base font-bold text-gray-900 mb-1">
+              All Users
+            </h2>
+            <p className="text-sm text-gray-400 mb-5">
+              Employees who can submit tickets. Removing one deletes their account.
+            </p>
+
+            <div className="space-y-2">
+              {usersLoading ? (
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <Spinner size={16} />
+                  Loading…
+                </div>
+              ) : users.length > 0 ? (
+                users.map((u) => (
+                  <AccountRow
+                    key={u.id}
+                    account={u}
+                    isSelf={user?.id != null && String(u.id) === String(user.id)}
+                    isConfirming={confirmingUserId === u.id}
+                    isDeleting={deletingUserId === u.id}
+                    onDeleteClick={() => handleDeleteUser(u)}
+                    onCancel={() => setConfirmingUserId(null)}
+                    deleteLabel="as a user"
+                  />
+                ))
+              ) : (
+                <p className="text-sm text-gray-400">No users found.</p>
+              )}
+              {userDeleteError && (
+                <p className="text-xs text-red-500 pt-1">{userDeleteError}</p>
               )}
             </div>
           </div>
